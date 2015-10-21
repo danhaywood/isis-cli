@@ -54,60 +54,10 @@
             <version>1.1.1</version>
         </dependency>
 
-        <!-- org.eclipse.core.contenttype_3.4.1.R35x_v20090826-0451 -->
-        <dependency>
-            <groupId>org.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.contenttype</artifactId>
-            <version>3.4.100.v20100505-1235</version>
-        </dependency>
-
-        <!-- org.eclipse.core.jobs_3.4.100.v20090429-1800 -->
-        <dependency>
-            <groupId>org.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.jobs</artifactId>
-            <version>3.5.0.v20100515</version>
-        </dependency>
-
-        <!-- org.eclipse.core.resources_3.5.2.R35x_v20091203-1235 -->
-        <dependency>
-            <groupId>org.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.resources</artifactId>
-            <version>3.2.0-v20060603</version>
-        </dependency>
-
-        <!-- org.eclipse.core.runtime_3.5.0.v20090525 -->
-        <dependency>
-            <groupId>org.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.runtime</artifactId>
-            <version>3.6.0.v20100505</version>
-        </dependency>
-
-        <!-- org.eclipse.equinox.common_3.5.1.R35x_v20090807-1100 -->
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.common</artifactId>
-            <version>3.6.0.v20100503</version>
-        </dependency>
-
-        <!-- org.eclipse.equinox.preferences_3.2.301.R35x_v20091117 -->
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.preferences</artifactId>
-            <version>3.3.0.v20100503</version>
-        </dependency>
-
-        <!-- org.eclipse.jdt.core_3.5.2.v_981_R35x -->
         <dependency>
             <groupId>org.eclipse.jdt</groupId>
-            <artifactId>core</artifactId>
-            <version>3.4.2.v_883_R34x</version>
-        </dependency>
-
-        <!-- org.eclipse.osgi_3.5.2.R35x_v20100126 -->
-        <dependency>
-            <groupId>org.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.osgi</artifactId>
-            <version>3.6.0.v20100517</version>
+            <artifactId>org.eclipse.jdt.core</artifactId>
+            <version>3.10.0</version>
         </dependency>
 
     </dependencies>
@@ -130,6 +80,73 @@
                     <version>${lombok.version}</version>
                     <scope>provided</scope>
                 </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>jdt</id>
+            <activation>
+                <property>
+                    <name>jdt</name>
+                </property>
+            </activation>
+            <dependencies>
+
+                <!-- org.eclipse.core.contenttype_3.4.1.R35x_v20090826-0451 -->
+                <dependency>
+                    <groupId>org.eclipse.core</groupId>
+                    <artifactId>org.eclipse.core.contenttype</artifactId>
+                    <version>3.4.100.v20100505-1235</version>
+                </dependency>
+
+                <!-- org.eclipse.core.jobs_3.4.100.v20090429-1800 -->
+                <dependency>
+                    <groupId>org.eclipse.core</groupId>
+                    <artifactId>org.eclipse.core.jobs</artifactId>
+                    <version>3.5.0.v20100515</version>
+                </dependency>
+
+                <!-- org.eclipse.core.resources_3.5.2.R35x_v20091203-1235 -->
+                <dependency>
+                    <groupId>org.eclipse.core</groupId>
+                    <artifactId>org.eclipse.core.resources</artifactId>
+                    <version>3.2.0-v20060603</version>
+                </dependency>
+
+                <!-- org.eclipse.core.runtime_3.5.0.v20090525 -->
+                <dependency>
+                    <groupId>org.eclipse.core</groupId>
+                    <artifactId>org.eclipse.core.runtime</artifactId>
+                    <version>3.6.0.v20100505</version>
+                </dependency>
+
+                <!-- org.eclipse.equinox.common_3.5.1.R35x_v20090807-1100 -->
+                <dependency>
+                    <groupId>org.eclipse.equinox</groupId>
+                    <artifactId>org.eclipse.equinox.common</artifactId>
+                    <version>3.6.0.v20100503</version>
+                </dependency>
+
+                <!-- org.eclipse.equinox.preferences_3.2.301.R35x_v20091117 -->
+                <dependency>
+                    <groupId>org.eclipse.equinox</groupId>
+                    <artifactId>org.eclipse.equinox.preferences</artifactId>
+                    <version>3.3.0.v20100503</version>
+                </dependency>
+
+                <!-- org.eclipse.jdt.core_3.5.2.v_981_R35x -->
+                <dependency>
+                    <groupId>org.eclipse.jdt</groupId>
+                    <artifactId>core</artifactId>
+                    <version>3.4.2.v_883_R34x</version>
+                </dependency>
+
+                <!-- org.eclipse.osgi_3.5.2.R35x_v20100126 -->
+                <dependency>
+                    <groupId>org.eclipse.osgi</groupId>
+                    <artifactId>org.eclipse.osgi</artifactId>
+                    <version>3.6.0.v20100517</version>
+                </dependency>
+
             </dependencies>
         </profile>
     </profiles>

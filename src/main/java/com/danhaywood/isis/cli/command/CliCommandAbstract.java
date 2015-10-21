@@ -1,4 +1,4 @@
-package com.danhaywood.isis.cli.templates;
+package com.danhaywood.isis.cli.command;
 
 import java.io.Closeable;
 import java.io.File;
@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import com.danhaywood.isis.cli.CliCommand;
+import com.danhaywood.isis.cli.ExecutionContext;
 import com.google.common.base.Joiner;
 
 import freemarker.template.Template;
@@ -73,8 +74,11 @@ public abstract class CliCommandAbstract implements CliCommand {
         return path.toFile();
     }
 
-    protected String merge(final ExecutionContext ec) throws IOException {
-        return merge(ec, getClass().getSimpleName() + ".ftl", this);
+    protected String merge(
+            final ExecutionContext ec,
+            final String templateSuffix) throws IOException {
+        final String templateName = String.format("%s.%s.ftl", getClass().getSimpleName(), templateSuffix);
+        return merge(ec, templateName, this);
     }
 
     private String merge(

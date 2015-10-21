@@ -1,8 +1,9 @@
-package com.danhaywood.isis.cli.templates;
+package com.danhaywood.isis.cli.command;
 
 import java.io.File;
 import java.io.IOException;
 
+import com.danhaywood.isis.cli.ExecutionContext;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
@@ -17,7 +18,8 @@ public class Entity extends CliCommandAbstract {
 
     public String execute(final ExecutionContext ec) throws IOException {
 
-        setClassName(ec.getClassName());
+        ec.getShellContext().setClassName(getClassName());
+
         setPackageName(ec.getPackageName());
 
         final File packageDir = packageDirFor(ec, MvnModule.DOM, SrcPath.SRC_MAIN_JAVA);
@@ -30,7 +32,7 @@ public class Entity extends CliCommandAbstract {
             return String.format("Entity '%s' already exists", getClassName());
         }
 
-        final String result = merge(ec);
+        final String result = merge(ec, "dom");
         Files.write(result, entityFile, Charsets.UTF_8);
 
         return String.format("created %s in %s", fileName, packageDir.getCanonicalPath());

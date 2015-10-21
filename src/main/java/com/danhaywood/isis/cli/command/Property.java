@@ -1,10 +1,11 @@
-package com.danhaywood.isis.cli.templates;
+package com.danhaywood.isis.cli.command;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
+import com.danhaywood.isis.cli.ExecutionContext;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 
@@ -58,7 +59,7 @@ public class Property extends CliCommandAbstract {
         final int lastLineIdx = originalLines.size() - 1;
         final String lastLine = originalLines.get(lastLineIdx);
 
-        final String propertyFragment = merge(ec);
+        final String propertyFragment = merge(ec, "dom");
 
         mergedLines.addAll(originalLines.subList(0, lastLineIdx));
         mergedLines.add(propertyFragment);

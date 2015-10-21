@@ -1,6 +1,8 @@
-package com.danhaywood.isis.cli.templates;
+package com.danhaywood.isis.cli.command;
 
 import java.io.IOException;
+
+import com.danhaywood.isis.cli.ExecutionContext;
 
 public class Pkg extends CliCommandAbstract {
 

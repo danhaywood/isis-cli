@@ -14,7 +14,7 @@ public class ShellContext {
     private String className;
     private Shell shell;
 
-    void setClassName(final String className) {
+    public void setClassName(final String className) {
         this.className = className;
         sync();
     }

@@ -7,10 +7,10 @@ import java.util.Locale;
 import com.budhash.cliche.Command;
 import com.budhash.cliche.Shell;
 import com.budhash.cliche.ShellDependent;
-import com.danhaywood.isis.cli.templates.Cd;
-import com.danhaywood.isis.cli.templates.Entity;
-import com.danhaywood.isis.cli.templates.Pkg;
-import com.danhaywood.isis.cli.templates.Property;
+import com.danhaywood.isis.cli.command.Cd;
+import com.danhaywood.isis.cli.command.Entity;
+import com.danhaywood.isis.cli.command.Pkg;
+import com.danhaywood.isis.cli.command.Property;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
@@ -23,16 +23,12 @@ public class CliCommands implements ShellDependent {
     private final ShellContext shellContext = new ShellContext();
 
     public CliCommands(final String baseDir, final String packagePath) throws IOException {
-        try {
-            this.baseDir = new File(baseDir).getCanonicalFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.baseDir = new File(baseDir).getCanonicalFile();
 
         pkg(packagePath);
 
         final Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
-        cfg.setClassForTemplateLoading(CliCommands.class, "templates");
+        cfg.setClassForTemplateLoading(CliCommands.class, "command");
 
         cfg.setDefaultEncoding("UTF-8");
         cfg.setLocale(Locale.US);
@@ -41,21 +37,10 @@ public class CliCommands implements ShellDependent {
         this.freemarkerCfg = cfg;
     }
 
-    private CliCommand.ExecutionContext newExecContext() {
-        return new CliCommand.ExecutionContext(freemarkerCfg, baseDir, shellContext);
+    private ExecutionContext newExecContext() {
+        return new ExecutionContext(freemarkerCfg, baseDir, shellContext);
     }
 
-    @Command(
-            abbrev = "cd",
-            description = "Change current package (use '.' or '/' as package separator; use '..' to go up)"
-    )
-    public void cd(final String packagePath) throws IOException {
-
-        final Cd cd = new Cd();
-        cd.setPackagePath(packagePath);
-
-        cd.execute(newExecContext());
-    }
 
     @Command(
             abbrev = "base",
@@ -75,9 +60,9 @@ public class CliCommands implements ShellDependent {
             description = "package com.mycompany   # set the current package (same as -package cmd line)"
     )
     public String pkg(final String packageName) throws IOException {
-
         final Pkg pkg = new Pkg();
-        return pkg.execute(newExecContext());
+        pkg.setPackageName(packageName);
+        return execute(pkg);
     }
 
     @Command(
@@ -89,15 +74,24 @@ public class CliCommands implements ShellDependent {
     }
 
     @Command(
+            abbrev = "cd",
+            description = "Change current package (use '.' or '/' as package separator; use '..' to go up)"
+    )
+    public void cd(final String packagePath) throws IOException {
+        final Cd cd = new Cd();
+        cd.setPackageName(packagePath);
+        execute(cd);
+    }
+
+    @Command(
             abbrev = "entity",
             description = "entity Customer   # scaffold new entity and supporting test classes"
     )
     public String entity(final String entityName) throws IOException {
 
         final Entity entity = new Entity();
-        shellContext.setClassName(entityName);
-
-        return entity.execute(newExecContext());
+        entity.setClassName(entityName);
+        return execute(entity);
     }
 
     @Command(
@@ -112,9 +106,12 @@ public class CliCommands implements ShellDependent {
         property.setPropertyName(propertyName);
         property.setDataType(dataType);
 
-        return property.execute(newExecContext());
+        return execute(property);
     }
 
+    private String execute(final CliCommand cliCommand) throws IOException {
+        return cliCommand.execute(newExecContext());
+    }
 
     private String getBaseDirCanonicalPath() {
         try {
