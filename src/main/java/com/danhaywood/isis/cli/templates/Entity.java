@@ -6,7 +6,14 @@ import java.io.IOException;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class Entity extends CliCommandAbstract {
+
+    @Getter @Setter
+    private String className;
+
 
     public String execute(final ExecutionContext ec) throws IOException {
 

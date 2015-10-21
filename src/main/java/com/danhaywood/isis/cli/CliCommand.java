@@ -33,6 +33,15 @@ public interface CliCommand {
             return baseDir;
         }
 
+        public String getBaseDirCanonicalPath() {
+            try {
+                return baseDir.getCanonicalPath();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
         public String getClassName() {
             return shellContext.getClassName();
         }
@@ -43,6 +52,10 @@ public interface CliCommand {
 
         public String getPackageName() {
             return shellContext.asPackageName(".");
+        }
+
+        public ShellContext getShellContext() {
+            return shellContext;
         }
     }
 }

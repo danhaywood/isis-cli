@@ -8,7 +8,7 @@ import com.budhash.cliche.Shell;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
-class ShellContext {
+public class ShellContext {
 
     private final Stack<String> packageNames = new Stack<String>();
     private String className;
@@ -23,12 +23,12 @@ class ShellContext {
         return className;
     }
 
-    void pushd(final String name) {
+    public void pushd(final String name) {
         packageNames.push(name);
         sync();
     }
 
-    void popd() {
+    public void popd() {
         if (className != null) {
             className = null;
         } else {
@@ -39,7 +39,7 @@ class ShellContext {
         sync();
     }
 
-    void clear() {
+    public void clear() {
         className = null;
         packageNames.clear();
     }

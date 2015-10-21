@@ -14,9 +14,14 @@ import lombok.Setter;
 public class Property extends CliCommandAbstract {
 
     @Getter @Setter
-    private String dataType;
+    private String packageName;
+    @Getter @Setter
+    private String className;
+
     @Getter @Setter
     private String propertyName;
+    @Getter @Setter
+    private String dataType;
 
     public String getPropertyNameUpper() {
         if(propertyName == null) {

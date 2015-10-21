@@ -11,7 +11,7 @@ import com.google.common.collect.Iterables;
 
 public final class Base {
 
-    static String validate(final String base) throws IOException {
+    public static String validate(final String base) throws IOException {
         final File baseDir = new File(base).getCanonicalFile();
         if(!baseDir.isDirectory()) {
             return "Base is not a directory";

@@ -19,8 +19,6 @@ public abstract class CliCommandAbstract implements CliCommand {
 
     @Getter @Setter
     private String packageName;
-    @Getter @Setter
-    private String className;
 
     protected File packageDirFor(
             final File baseDir,

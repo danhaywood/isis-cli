@@ -7,9 +7,10 @@ import java.util.Locale;
 import com.budhash.cliche.Command;
 import com.budhash.cliche.Shell;
 import com.budhash.cliche.ShellDependent;
+import com.danhaywood.isis.cli.templates.Cd;
 import com.danhaywood.isis.cli.templates.Entity;
+import com.danhaywood.isis.cli.templates.Pkg;
 import com.danhaywood.isis.cli.templates.Property;
-import com.google.common.base.Splitter;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
@@ -21,7 +22,7 @@ public class CliCommands implements ShellDependent {
 
     private final ShellContext shellContext = new ShellContext();
 
-    public CliCommands(final String baseDir, final String packagePath) {
+    public CliCommands(final String baseDir, final String packagePath) throws IOException {
         try {
             this.baseDir = new File(baseDir).getCanonicalFile();
         } catch (IOException e) {
@@ -48,24 +49,17 @@ public class CliCommands implements ShellDependent {
             abbrev = "cd",
             description = "Change current package (use '.' or '/' as package separator; use '..' to go up)"
     )
-    public void cd(final String packagePath) {
+    public void cd(final String packagePath) throws IOException {
 
-        // split on '/', '\' and '.' (latter so long as the path doesn't contain "..")
-        final String pattern = !packagePath.contains("..") ? "[/\\\\\\.]" : "[/\\\\]";
+        final Cd cd = new Cd();
+        cd.setPackagePath(packagePath);
 
-        final Iterable<String> packageNames = Splitter.onPattern(pattern).split(packagePath);
-        for (String dirPart : packageNames) {
-            if("..".equals(dirPart)) {
-                shellContext.popd();
-            } else {
-                shellContext.pushd(dirPart);
-            }
-        }
+        cd.execute(newExecContext());
     }
 
     @Command(
             abbrev = "base",
-            description = "Set the current base directory to the root of the Isis project (same as -base cmd line)"
+            description = "base /users/xxx/dev/myapp    # set the base directory to the root of an Isis project (same as -base cmd line)"
     )
     public String base(final String base) throws IOException {
         final String errorMessageIfAny = Base.validate(base);
@@ -73,17 +67,17 @@ public class CliCommands implements ShellDependent {
             return errorMessageIfAny;
         }
         baseDir = new File(base);
-        return baseDir();
+        return getBaseDirCanonicalPath();
     }
 
     @Command(
             abbrev = "package",
             description = "package com.mycompany   # set the current package (same as -package cmd line)"
     )
-    public String pkg(final String packageName) {
-        shellContext.clear();
-        cd(packageName);
-        return baseDir();
+    public String pkg(final String packageName) throws IOException {
+
+        final Pkg pkg = new Pkg();
+        return pkg.execute(newExecContext());
     }
 
     @Command(
@@ -91,7 +85,7 @@ public class CliCommands implements ShellDependent {
             description = "print current base directory and package"
     )
     public String pwd() {
-        return shellContext.pwd(baseDir());
+        return shellContext.pwd(getBaseDirCanonicalPath());
     }
 
     @Command(
@@ -122,7 +116,7 @@ public class CliCommands implements ShellDependent {
     }
 
 
-    private String baseDir() {
+    private String getBaseDirCanonicalPath() {
         try {
             return baseDir.getCanonicalPath();
         } catch (IOException e) {
