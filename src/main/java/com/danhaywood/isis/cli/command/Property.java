@@ -2,12 +2,11 @@ package com.danhaywood.isis.cli.command;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
 
 import com.danhaywood.isis.cli.ExecutionContext;
+import com.danhaywood.isis.cli.JavaSource;
 import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -53,21 +52,21 @@ public class Property extends CliCommandAbstract {
             return String.format("Entity '%s' does not exist - skipping", getClassName());
         }
 
-        final List<String> mergedLines = Lists.newArrayList();
-        final List<String> originalLines = Files.readAllLines(entityFile.toPath());
-
-        final int lastLineIdx = originalLines.size() - 1;
-        final String lastLine = originalLines.get(lastLineIdx);
+        final String source = Files.toString(entityFile, Charsets.UTF_8);
 
         final String propertyFragment = merge(ec, "dom");
 
-        mergedLines.addAll(originalLines.subList(0, lastLineIdx));
-        mergedLines.add(propertyFragment);
-        mergedLines.add(lastLine);
+        final JavaSource javaSource = new JavaSource(source);
+        final String propertyName = getPropertyName();
+        final boolean inserted = javaSource.insert(propertyFragment, fieldLocatorFor(propertyName), null);
+        if(!inserted) {
+            return String.format("Property '%s' already exists in entity '%s'", propertyName, getClassName());
+        }
 
-        Files.write(entityFile.toPath(), mergedLines, Charsets.UTF_8);
+        Files.write(javaSource.getSource(), entityFile, Charsets.UTF_8);
 
         return String.format("Property '%s' created in entity '%s'", propertyName, getClassName());
     }
+
 
 }

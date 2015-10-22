@@ -1,9 +1,7 @@
 package com.danhaywood.isis.cli;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
-import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.junit.Before;
@@ -42,7 +40,7 @@ public class JavaSourceTest {
     @Test
     public void inserted() throws Exception {
 
-        javaSource.insert(toInsert, Predicates.<BodyDeclaration>alwaysFalse());
+        javaSource.insert(toInsert, null, null);
 
         final String source = javaSource.getSource();
         assertThat(source).isEqualTo(
@@ -63,25 +61,35 @@ public class JavaSourceTest {
     }
 
     @Test
+    public void inserted_not_vetoed_on_field() throws Exception {
+
+        javaSource.insert(toInsert, Predicates.<FieldDeclaration>alwaysFalse(), null);
+
+        final String source = javaSource.getSource();
+        assertThat(source).contains("public void bar()");
+    }
+
+    @Test
+    public void inserted_not_vetoed_on_method() throws Exception {
+
+        javaSource.insert(toInsert, null, Predicates.<MethodDeclaration>alwaysFalse());
+
+        final String source = javaSource.getSource();
+        assertThat(source).contains("public void bar()");
+    }
+
+    @Test
     public void inserted_vetoed_on_field() throws Exception {
 
-        javaSource.insert(toInsert, new Predicate<BodyDeclaration>() {
-            public boolean apply(final BodyDeclaration bodyDeclaration) {
-                return bodyDeclaration instanceof FieldDeclaration;
-            }
-        });
+        javaSource.insert(toInsert, Predicates.<FieldDeclaration>alwaysTrue(), null);
 
         assertThat(javaSource.getSource()).doesNotContain("bar");
     }
     @Test
     public void inserted_vetoed_on_method() throws Exception {
 
-        javaSource.insert(toInsert, new Predicate<BodyDeclaration>() {
-            public boolean apply(final BodyDeclaration bodyDeclaration) {
-                return bodyDeclaration instanceof MethodDeclaration;
-            }
-        });
-
+        javaSource.insert(toInsert, null, Predicates.<MethodDeclaration>alwaysTrue());
         assertThat(javaSource.getSource()).doesNotContain("bar");
     }
+
 }

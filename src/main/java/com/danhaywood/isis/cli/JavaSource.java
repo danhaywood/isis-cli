@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -40,12 +41,13 @@ public class JavaSource {
     /**
      *
      * @param sourceFragment
-     * @param locator - if finds elements already, then insert is skipped.
-     * @throws BadLocationException
+     * @param fieldLocator - if finds field already present, then insert is skipped.
+     * @param methodLocator - if finds method already present, then insert is skipped.
      */
-    public void insert(
+    public boolean insert(
             final String sourceFragment,
-            final Predicate<BodyDeclaration> locator) throws BadLocationException {
+            final Predicate<FieldDeclaration> fieldLocator,
+            final Predicate<MethodDeclaration> methodLocator) {
 
         final CompilationUnit compilationUnit = getCompilationUnit(this.source);
         final TypeDeclaration typeDecl = getTypeDeclaration(compilationUnit);
@@ -57,15 +59,15 @@ public class JavaSource {
 
         // don't do anything if we detect that a field or method representing the code to be inserted is already present
         final FieldDeclaration[] fields = typeDecl.getFields();
-        final Optional<BodyDeclaration> fieldDecl = Iterables.tryFind(Arrays.<BodyDeclaration>asList(fields), locator);
-        if(fieldDecl.isPresent()) {
-            return;
+        final Optional<FieldDeclaration> fieldDecl = Iterables.tryFind(Arrays.asList(fields), elseFalse(fieldLocator));
+        if (fieldDecl.isPresent()) {
+            return false;
         }
-        final MethodDeclaration[] methods = typeDecl.getMethods();
-        final Optional<BodyDeclaration> methodDecl = Iterables.tryFind(Arrays.<BodyDeclaration>asList(methods), locator);
 
-        if(methodDecl.isPresent()) {
-            return;
+        final MethodDeclaration[] methods = typeDecl.getMethods();
+        final Optional<MethodDeclaration> methodDecl = Iterables.tryFind(Arrays.asList(methods), elseFalse(methodLocator));
+        if (methodDecl.isPresent()) {
+            return false;
         }
 
         final BodyDeclaration bodyDecl = determineBodyDeclarationToInsertAfter(fields, methods);
@@ -81,9 +83,19 @@ public class JavaSource {
         final Document document = new Document(source);
         final TextEdit edits = astRewrite.rewriteAST(document, null);
 
-        edits.apply(document);
+        try {
+            edits.apply(document);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
 
         this.source = formatter.format(document);
+
+        return true;
+    }
+
+    private static <T> Predicate<T> elseFalse(final Predicate<T> predicate) {
+        return predicate != null ? predicate : Predicates.<T>alwaysFalse();
     }
 
     private static BodyDeclaration determineBodyDeclarationToInsertAfter(

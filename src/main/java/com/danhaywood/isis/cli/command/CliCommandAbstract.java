@@ -10,6 +10,11 @@ import java.util.List;
 import com.danhaywood.isis.cli.CliCommand;
 import com.danhaywood.isis.cli.ExecutionContext;
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -113,6 +118,23 @@ public abstract class CliCommandAbstract implements CliCommand {
                 //
             }
         }
+    }
+
+    protected static Predicate<FieldDeclaration> fieldLocatorFor(final String propertyName) {
+        return new Predicate<FieldDeclaration>() {
+            public boolean apply(final FieldDeclaration fieldDeclaration) {
+                final List fragments = fieldDeclaration.fragments();
+                for (Object fragment : fragments) {
+                    if (fragment instanceof VariableDeclarationFragment) {
+                        final VariableDeclarationFragment vdf = (VariableDeclarationFragment) fragment;
+                        if (Objects.equal(vdf.getName().getIdentifier(), propertyName)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        };
     }
 
 }
