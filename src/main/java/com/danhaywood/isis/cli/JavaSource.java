@@ -1,12 +1,17 @@
 package com.danhaywood.isis.cli;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -18,8 +23,10 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 public class JavaSource {
@@ -28,10 +35,8 @@ public class JavaSource {
 
     public JavaSource(final String source) {
 
-        final CompilationUnit compilationUnit = getCompilationUnit(source);
-        final TypeDeclaration typeDecl = getTypeDeclaration(compilationUnit);
-
-        this.source = typeDecl.toString();
+        final String formatted = format(source);
+        this.source = formatted;
     }
 
     public void insert(
@@ -82,12 +87,11 @@ public class JavaSource {
 
         edits.apply(document);
 
-        final String afterEdits = document.get();
+//        final String afterEdits = document.get();
+//        final CompilationUnit compilationUnitAfter = getCompilationUnit(afterEdits);
+//        final TypeDeclaration typeDecl2After = getTypeDeclaration(compilationUnitAfter);
 
-        final CompilationUnit compilationUnitAfter = getCompilationUnit(afterEdits);
-        final TypeDeclaration typeDecl2After = getTypeDeclaration(compilationUnitAfter);
-
-        this.source = typeDecl2After.toString();
+        this.source = format(document);
     }
 
     public String getSource() {
@@ -105,6 +109,35 @@ public class JavaSource {
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
 
         return (CompilationUnit)parser.createAST(null);
+    }
+
+    private static String format(final String source) {
+        IDocument doc = new Document(source);
+        return format(doc);
+    }
+
+    private static String format(final IDocument doc) {
+        final String source2 = doc.get();
+
+        final Hashtable options = JavaCore.getOptions();
+        final List optionKeys = Lists.newArrayList(options.keySet());
+        Collections.sort(optionKeys);
+
+        options.put("org.eclipse.jdt.core.formatter.tabulation.char", "space");
+
+        //        for (Object optionKey : optionKeys) {
+        //            System.out.println(optionKey + "=" + options.get(optionKey));
+        //        }
+
+        CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(options);
+        TextEdit textEdit = codeFormatter.format(CodeFormatter.K_UNKNOWN, source2, 0, source2.length(),0,null);
+        try {
+            textEdit.apply(doc);
+        } catch (BadLocationException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        return doc.get();
     }
 
 }

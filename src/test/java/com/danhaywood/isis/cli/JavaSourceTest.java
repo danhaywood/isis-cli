@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaSourceTest {
 
-    final String source = "public class Customer { private String firstName; private String lastName; public void foo() {} }";
+    final String source = "public class Customer { /** \n* test comment\n */ private String firstName; private String lastName; public void foo() {} }";
     final String toInsert = "public void bar(){int x=3;}";
     private JavaSource javaSource;
 
@@ -27,12 +27,16 @@ public class JavaSourceTest {
 
         final String source = javaSource.getSource();
         assertThat(source).isEqualTo(
-                          "public class Customer {\n"
-                        + "  private String firstName;\n"
-                        + "  private String lastName;\n"
-                        + "  public void foo(){\n"
-                        + "  }\n"
-                        + "}\n");
+                          "public class Customer {" + System.lineSeparator()
+                        + "    /** " + System.lineSeparator()
+                        + "     * test comment"+ System.lineSeparator()
+                        + "     */"+ System.lineSeparator()
+                        + "    private String firstName;"+ System.lineSeparator()
+                        + "    private String lastName;"+ System.lineSeparator()
+                        + ""+ System.lineSeparator()
+                        + "    public void foo() {"+ System.lineSeparator()
+                        + "    }"+ System.lineSeparator()
+                        + "}");
     }
 
     @Test
@@ -42,15 +46,20 @@ public class JavaSourceTest {
 
         final String source = javaSource.getSource();
         assertThat(source).isEqualTo(
-                          "public class Customer {\n"
-                        + "  private String firstName;\n"
-                        + "  private String lastName;\n"
-                        + "  public void foo(){\n"
-                        + "  }\n"
-                        + "  public void bar(){\n"
-                        + "    int x=3;\n"
-                        + "  }\n"
-                        + "}\n");
+                          "public class Customer {" + System.lineSeparator()
+                        + "    /** " + System.lineSeparator()
+                        + "     * test comment"+ System.lineSeparator()
+                        + "     */"+ System.lineSeparator()
+                        + "    private String firstName;"+ System.lineSeparator()
+                        + "    private String lastName;"+ System.lineSeparator()
+                        + ""+ System.lineSeparator()
+                        + "    public void foo() {"+ System.lineSeparator()
+                        + "    }"+ System.lineSeparator()
+                        + ""+ System.lineSeparator()
+                        + "    public void bar() {"+ System.lineSeparator()
+                        + "        int x = 3;"+ System.lineSeparator()
+                        + "    }"+ System.lineSeparator()
+                        + "}");
     }
 
     @Test
