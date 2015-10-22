@@ -4,19 +4,12 @@ import java.io.IOException;
 
 import com.budhash.cliche.ShellFactory;
 
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jface.text.BadLocationException;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 public class IsisCli {
 
-    public static void main(final String[] args) throws JavaModelException, BadLocationException {
-
-    }
-
-
-    public static void main2(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
         final Options options = new Options();
         CmdLineParser parser = new CmdLineParser(options);

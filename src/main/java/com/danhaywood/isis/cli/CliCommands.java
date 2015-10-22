@@ -95,8 +95,8 @@ public class CliCommands implements ShellDependent {
     }
 
     @Command(
-            abbrev = "prop",
-            description = "prop firstName String   # create new property in current entity"
+            abbrev = "isp",
+            description = "isp firstName String   # create new property in current entity"
     )
     public String property(
             final String propertyName,

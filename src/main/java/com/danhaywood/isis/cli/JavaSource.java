@@ -1,17 +1,12 @@
 package com.danhaywood.isis.cli;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -23,25 +18,34 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 public class JavaSource {
 
+    private final JavaSourceFormatter formatter = new JavaSourceFormatter();
+
     private String source;
 
     public JavaSource(final String source) {
-
-        final String formatted = format(source);
+        final String formatted = formatter.format(source);
         this.source = formatted;
     }
 
+    public String getSource() {
+        return source;
+    }
+
+    /**
+     *
+     * @param sourceFragment
+     * @param locator - if finds elements already, then insert is skipped.
+     * @throws BadLocationException
+     */
     public void insert(
-            final String toInsert,
-            Predicate<BodyDeclaration> locator) throws BadLocationException {
+            final String sourceFragment,
+            final Predicate<BodyDeclaration> locator) throws BadLocationException {
 
         final CompilationUnit compilationUnit = getCompilationUnit(this.source);
         final TypeDeclaration typeDecl = getTypeDeclaration(compilationUnit);
@@ -64,17 +68,9 @@ public class JavaSource {
             return;
         }
 
-        BodyDeclaration bodyDecl;
-        if(methods.length > 0) {
-            bodyDecl = methods[methods.length-1];
-        } else if(fields.length > 0) {
-            bodyDecl = fields[fields.length-1];
-        } else {
-            bodyDecl = null;
-        }
+        final BodyDeclaration bodyDecl = determineBodyDeclarationToInsertAfter(fields, methods);
 
-        Statement placeHolder = (Statement) astRewrite.createStringPlaceholder(toInsert, ASTNode.EMPTY_STATEMENT);
-
+        final Statement placeHolder = (Statement) astRewrite.createStringPlaceholder(sourceFragment, ASTNode.EMPTY_STATEMENT);
         ListRewrite listRewrite = astRewrite.getListRewrite(typeDecl, typeDecl.getBodyDeclarationsProperty());
         if(bodyDecl != null) {
             listRewrite.insertAfter(placeHolder, bodyDecl, null);
@@ -87,15 +83,19 @@ public class JavaSource {
 
         edits.apply(document);
 
-//        final String afterEdits = document.get();
-//        final CompilationUnit compilationUnitAfter = getCompilationUnit(afterEdits);
-//        final TypeDeclaration typeDecl2After = getTypeDeclaration(compilationUnitAfter);
-
-        this.source = format(document);
+        this.source = formatter.format(document);
     }
 
-    public String getSource() {
-        return source;
+    private static BodyDeclaration determineBodyDeclarationToInsertAfter(
+                            final FieldDeclaration[] fields,
+                            final MethodDeclaration[] methods) {
+        if(methods.length > 0) {
+            return methods[methods.length-1];
+        }
+        if(fields.length > 0) {
+            return fields[fields.length-1];
+        }
+        return null;
     }
 
     private static TypeDeclaration getTypeDeclaration(final CompilationUnit compilationUnit) {
@@ -109,35 +109,6 @@ public class JavaSource {
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
 
         return (CompilationUnit)parser.createAST(null);
-    }
-
-    private static String format(final String source) {
-        IDocument doc = new Document(source);
-        return format(doc);
-    }
-
-    private static String format(final IDocument doc) {
-        final String source2 = doc.get();
-
-        final Hashtable options = JavaCore.getOptions();
-        final List optionKeys = Lists.newArrayList(options.keySet());
-        Collections.sort(optionKeys);
-
-        options.put("org.eclipse.jdt.core.formatter.tabulation.char", "space");
-
-        //        for (Object optionKey : optionKeys) {
-        //            System.out.println(optionKey + "=" + options.get(optionKey));
-        //        }
-
-        CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(options);
-        TextEdit textEdit = codeFormatter.format(CodeFormatter.K_UNKNOWN, source2, 0, source2.length(),0,null);
-        try {
-            textEdit.apply(doc);
-        } catch (BadLocationException e) {
-            throw new IllegalArgumentException(e);
-        }
-
-        return doc.get();
     }
 
 }
