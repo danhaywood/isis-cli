@@ -25,7 +25,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.danhaywood.isis.cli.IsisCli</mainClass>
+                                    <mainClass>com.danhaywood.isis.cli.IsisCliUsingCliche</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -39,6 +39,12 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.jboss.aesh</groupId>
+            <artifactId>aesh</artifactId>
+            <version>0.66</version>
+        </dependency>
         <dependency>
             <groupId>com.budhash.cliche</groupId>
             <artifactId>cliche-shell</artifactId>
