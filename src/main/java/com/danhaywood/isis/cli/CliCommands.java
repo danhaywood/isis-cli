@@ -7,10 +7,10 @@ import java.util.Locale;
 import com.budhash.cliche.Command;
 import com.budhash.cliche.Shell;
 import com.budhash.cliche.ShellDependent;
-import com.danhaywood.isis.cli.command.Cd;
-import com.danhaywood.isis.cli.command.Entity;
-import com.danhaywood.isis.cli.command.Pkg;
-import com.danhaywood.isis.cli.command.Property;
+import com.danhaywood.isis.cli.aesh.CdCommand;
+import com.danhaywood.isis.cli.aesh.EntityCommand;
+import com.danhaywood.isis.cli.aesh.PkgCommand;
+import com.danhaywood.isis.cli.aesh.PropertyCommand;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
@@ -37,10 +37,6 @@ public class CliCommands implements ShellDependent {
         this.freemarkerCfg = cfg;
     }
 
-    private ExecutionContext newExecContext() {
-        return new ExecutionContext(freemarkerCfg, baseDir, shellContext);
-    }
-
 
     @Command(
             abbrev = "base",
@@ -55,15 +51,6 @@ public class CliCommands implements ShellDependent {
         return getBaseDirCanonicalPath();
     }
 
-    @Command(
-            abbrev = "package",
-            description = "package com.mycompany   # set the current package (same as -package cmd line)"
-    )
-    public String pkg(final String packageName) throws IOException {
-        final Pkg pkg = new Pkg();
-        pkg.setPackageName(packageName);
-        return execute(pkg);
-    }
 
     @Command(
             abbrev = "pwd",
@@ -78,9 +65,9 @@ public class CliCommands implements ShellDependent {
             description = "Change current package (use '.' or '/' as package separator; use '..' to go up)"
     )
     public void cd(final String packagePath) throws IOException {
-        final Cd cd = new Cd();
-        cd.setPackageName(packagePath);
-        execute(cd);
+        final CdCommand cdCommand = new CdCommand();
+        cdCommand.setPackageName(packagePath);
+        execute(cdCommand);
     }
 
     @Command(
@@ -89,9 +76,9 @@ public class CliCommands implements ShellDependent {
     )
     public String entity(final String entityName) throws IOException {
 
-        final Entity entity = new Entity();
-        entity.setClassName(entityName);
-        return execute(entity);
+        final EntityCommand entityCommand = new EntityCommand();
+        entityCommand.setClassName(entityName);
+        return execute(entityCommand);
     }
 
     @Command(
@@ -102,11 +89,11 @@ public class CliCommands implements ShellDependent {
             final String propertyName,
             final String dataType) throws IOException {
 
-        final Property property = new Property();
-        property.setPropertyName(propertyName);
-        property.setDataType(dataType);
+        final PropertyCommand propertyCommand = new PropertyCommand();
+        propertyCommand.setPropertyName(propertyName);
+        propertyCommand.setDataType(dataType);
 
-        return execute(property);
+        return execute(propertyCommand);
     }
 
     private String execute(final CliCommand cliCommand) throws IOException {

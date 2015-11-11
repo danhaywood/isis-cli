@@ -38,19 +38,11 @@ public final class Base {
     }
 
     private static Predicate<File> isFile(final String fileName) {
-        return new Predicate<File>() {
-            public boolean apply(final File file) {
-                return file.getName().equals(fileName) && file.isFile();
-            }
-        };
+        return file -> file.getName().equals(fileName) && file.isFile();
     }
 
     private static Predicate<File> isDir(final String dirName) {
-        return new Predicate<File>() {
-            public boolean apply(final File file) {
-                return file.getName().contains(dirName) && file.isDirectory();
-            }
-        };
+        return file -> file.getName().contains(dirName) && file.isDirectory();
     }
 
 }

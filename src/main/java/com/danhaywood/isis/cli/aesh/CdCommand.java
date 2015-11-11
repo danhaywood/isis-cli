@@ -1,11 +1,12 @@
-package com.danhaywood.isis.cli.command;
+package com.danhaywood.isis.cli.aesh;
 
 import java.io.IOException;
 
 import com.danhaywood.isis.cli.ExecutionContext;
+import com.danhaywood.isis.cli.command.CliCommandAbstract;
 import com.google.common.base.Splitter;
 
-public class Cd extends CliCommandAbstract {
+public class CdCommand extends CliCommandAbstract {
 
     public String execute(final ExecutionContext ec) throws IOException {
 

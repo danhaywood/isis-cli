@@ -1,17 +1,18 @@
-package com.danhaywood.isis.cli.command;
+package com.danhaywood.isis.cli.aesh;
 
 import java.io.File;
 import java.io.IOException;
 
 import com.danhaywood.isis.cli.ExecutionContext;
 import com.danhaywood.isis.cli.JavaSource;
+import com.danhaywood.isis.cli.command.CliCommandAbstract;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 import lombok.Getter;
 import lombok.Setter;
 
-public class Property extends CliCommandAbstract {
+public class PropertyCommand extends CliCommandAbstract {
 
     @Getter @Setter
     private String packageName;
