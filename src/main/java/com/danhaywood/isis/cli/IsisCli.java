@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
-import com.danhaywood.isis.cli.aesh.ExitCommand;
+import com.danhaywood.isis.cli.command.ExitCommand;
 
 import org.jboss.aesh.console.AeshConsole;
 import org.jboss.aesh.console.AeshConsoleBuilder;
@@ -63,12 +63,7 @@ public class IsisCli {
 
         final Settings settings = createSettings();
 
-        final Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
-        cfg.setClassForTemplateLoading(CliCommands.class, "command");
-
-        cfg.setDefaultEncoding("UTF-8");
-        cfg.setLocale(Locale.US);
-        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        final Configuration cfg = createFreemarkerCfg();
 
         final ShellContext shellContext = new ShellContext(cfg, baseDir, pkg);
         final CommandRegistry registry = createCommandRegistry(shellContext);
@@ -86,6 +81,16 @@ public class IsisCli {
 
     protected ManProviderForIsisCli createManProvider() {
         return new ManProviderForIsisCli();
+    }
+
+    Configuration createFreemarkerCfg() {
+        final Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+        cfg.setClassForTemplateLoading(IsisCli.class, "command");
+
+        cfg.setDefaultEncoding("UTF-8");
+        cfg.setLocale(Locale.US);
+        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        return cfg;
     }
 
     protected Settings createSettings() {

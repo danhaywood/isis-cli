@@ -2,6 +2,7 @@ package com.danhaywood.isis.cli;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -18,23 +19,33 @@ public class ShellContext {
 
     @Getter
     private final Configuration freemarkerCfg;
-    @Getter
-    private final File baseDir;
+    @Getter @Setter
+    private File baseDir;
     @Getter @Setter
     private String className;
 
     public ShellContext(
             final Configuration freemarkerCfg,
             final File baseDir,
-            final String pkg) {
+            final String fullyQualifiedPackage) {
         this.freemarkerCfg = freemarkerCfg;
         this.baseDir = baseDir;
-        pushd(pkg);
+        pushd(fullyQualifiedPackage);
     }
 
-
     public String getPackageName() {
-        return packageNames.empty()? null : packageNames.peek();
+        return asPackageName(".");
+    }
+
+    private String asPackageName(final String separator) {
+        return Joiner.on(separator).join(packageNames);
+    }
+
+    private List<String> asPackageList() {
+        return Lists.newArrayList(Arrays.asList(packageNames.toArray(new String[] {})));
+    }
+    public List<String> getPackageNames() {
+        return Collections.unmodifiableList(asPackageList());
     }
 
     public void pushd(final String name) {
@@ -56,19 +67,7 @@ public class ShellContext {
         packageNames.clear();
     }
 
-    String asPackageName(final String separator) {
-        return Joiner.on(separator).join(packageNames);
+    public String pwd() {
+        return getPackageName() + (className != null? "." + className : "");
     }
-
-    public List<String> asPackageList() {
-        return Lists.newArrayList(Arrays.asList(packageNames.toArray(new String[] {})));
-    }
-
-    public String pwd(final String baseDir) {
-        return String.format(
-                "base   : %s\npackage: %s\nclass  : %s",
-                baseDir, asPackageName("."), (className != null? className: ""));
-    }
-
-
 }

@@ -7,24 +7,24 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.List;
 
-import com.danhaywood.isis.cli.CliCommand;
-import com.danhaywood.isis.cli.ExecutionContext;
-import com.google.common.base.Joiner;
+import com.danhaywood.isis.cli.ShellContext;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.jboss.aesh.console.command.Command;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import lombok.Getter;
-import lombok.Setter;
 
-public abstract class CliCommandAbstract implements CliCommand {
+public abstract class AbstractCommand implements Command {
 
-    @Getter @Setter
-    private String packageName;
+    protected final ShellContext shellContext;
+
+    public AbstractCommand(final ShellContext shellContext) {
+        this.shellContext = shellContext;
+    }
 
     protected File packageDirFor(
             final File baseDir,
@@ -65,39 +65,32 @@ public abstract class CliCommandAbstract implements CliCommand {
     }
 
     protected File packageDirFor(
-            final ExecutionContext ec,
             final MvnModule mvnModule,
             final SrcPath srcPath) {
 
-        final File baseDir = ec.getBaseDir();
+        final File baseDir = shellContext.getBaseDir();
 
         Path path = baseDir.toPath();
         path = path.resolve(mvnModule.getName() + "/" + srcPath.getPath());
-        for (String packageName : ec.getPackageNames()) {
+        for (final String packageName : shellContext.getPackageNames()) {
             path = path.resolve(packageName);
         }
         return path.toFile();
     }
 
     protected String merge(
-            final ExecutionContext ec,
             final String templateSuffix) throws IOException {
         final String templateName = String.format("%s.%s.ftl", getClass().getSimpleName(), templateSuffix);
-        return merge(ec, templateName, this);
+        return merge(templateName, this);
     }
 
     private String merge(
-            final ExecutionContext ec,
             final String freeMarkerTemplateName,
             final Object dataModel) throws IOException {
 
-        if(this.packageName == null) {
-            this.packageName = Joiner.on(".").join(ec.getPackageNames());
-        }
-
         StringWriter sw = null;
         try {
-            final Template template = ec.getFreemarkerCfg().getTemplate(freeMarkerTemplateName);
+            final Template template = shellContext.getFreemarkerCfg().getTemplate(freeMarkerTemplateName);
 
             sw = new StringWriter();
             template.process(dataModel, sw);
@@ -121,20 +114,21 @@ public abstract class CliCommandAbstract implements CliCommand {
     }
 
     protected static Predicate<FieldDeclaration> fieldLocatorFor(final String propertyName) {
-        return new Predicate<FieldDeclaration>() {
-            public boolean apply(final FieldDeclaration fieldDeclaration) {
-                final List fragments = fieldDeclaration.fragments();
-                for (Object fragment : fragments) {
-                    if (fragment instanceof VariableDeclarationFragment) {
-                        final VariableDeclarationFragment vdf = (VariableDeclarationFragment) fragment;
-                        if (Objects.equal(vdf.getName().getIdentifier(), propertyName)) {
-                            return true;
-                        }
+        return fieldDeclaration -> {
+            final List fragments = fieldDeclaration.fragments();
+            for (Object fragment : fragments) {
+                if (fragment instanceof VariableDeclarationFragment) {
+                    final VariableDeclarationFragment vdf = (VariableDeclarationFragment) fragment;
+                    if (Objects.equal(vdf.getName().getIdentifier(), propertyName)) {
+                        return true;
                     }
                 }
-                return false;
             }
+            return false;
         };
     }
+
+
+
 
 }
